@@ -7,7 +7,7 @@ from orangecontrib.neuralviz.widgets.owplayground_data import OWPlaygroundData
 
 
 class TestPlaygroundData(WidgetTest):
-    def test_generates(self):
+    def test_generates(self) -> None:
         w = self.create_widget(OWPlaygroundData)
         out = self.get_output(w.Outputs.data, widget=w)
         assert len(out) == 200 and out.domain.class_var.is_discrete
@@ -19,10 +19,10 @@ class TestPlaygroundData(WidgetTest):
 
 
 class TestNeuralPlayground(WidgetTest):
-    def setUp(self):
+    def setUp(self) -> None:
         self.w = self.create_widget(OWNeuralPlayground)
 
-    def test_starts_with_builtin_data(self):
+    def test_starts_with_builtin_data(self) -> None:
         w = self.w
         assert w.session is not None and w.session.epoch == 0
         assert not w.Error.active
@@ -30,7 +30,7 @@ class TestNeuralPlayground(WidgetTest):
         assert self.get_output(w.Outputs.model, widget=w) is not None
         assert self.get_output(w.Outputs.hidden, widget=w) is not None
 
-    def test_step_play_reset(self):
+    def test_step_play_reset(self) -> None:
         w = self.w
         w._step_once()
         assert w.session.epoch == 1
@@ -44,7 +44,7 @@ class TestNeuralPlayground(WidgetTest):
         w._reset()
         assert w.session.epoch == 0 and not np.array_equal(old, w.session.network.weights[0])
 
-    def test_trains_and_outputs_a_working_model(self):
+    def test_trains_and_outputs_a_working_model(self) -> None:
         w = self.w
         w.dataset_index = 1  # xor
         w.feature_keys = ["col:0", "col:1", "prod"]
@@ -58,7 +58,7 @@ class TestNeuralPlayground(WidgetTest):
         data = self.get_output(w.Outputs.data, widget=w)
         assert np.mean(model(data) == data.Y) > 0.9
 
-    def test_live_settings_do_not_reset(self):
+    def test_live_settings_do_not_reset(self) -> None:
         w = self.w
         w._step_once()
         w.lr_index = 3
@@ -70,7 +70,7 @@ class TestNeuralPlayground(WidgetTest):
         assert (c.learning_rate, c.regularization, c.reg_rate, c.batch_size) == (0.003, "l2", 0.03, 32)
         assert w.session.epoch == 1
 
-    def test_structure_changes_rebuild(self):
+    def test_structure_changes_rebuild(self) -> None:
         w = self.w
         w._step_once()
         w.n_hidden = 3
@@ -86,7 +86,7 @@ class TestNeuralPlayground(WidgetTest):
         w._on_structure_changed()
         assert w.session.network.activation == "relu"
 
-    def test_features(self):
+    def test_features(self) -> None:
         w = self.w
         assert w.feature_list.count() == 7
         for i in range(w.feature_list.count()):
@@ -96,7 +96,7 @@ class TestNeuralPlayground(WidgetTest):
         w.feature_list.item(0).setCheckState(2)
         assert not w.Error.no_features.is_shown() and w.session.network.sizes[0] == 1
 
-    def test_input_table(self):
+    def test_input_table(self) -> None:
         w = self.w
         iris = Table("iris")
         self.send_signal(w.Inputs.data, iris, widget=w)
@@ -110,7 +110,7 @@ class TestNeuralPlayground(WidgetTest):
         self.send_signal(w.Inputs.data, None, widget=w)
         assert w.session.network.sizes[0] == 2 and w.generator_box.isVisibleTo(w)
 
-    def test_bad_input_shows_error(self):
+    def test_bad_input_shows_error(self) -> None:
         w = self.w
         iris = Table("iris")
         no_class = iris.transform(type(iris.domain)(iris.domain.attributes))
@@ -120,7 +120,7 @@ class TestNeuralPlayground(WidgetTest):
         self.send_signal(w.Inputs.data, iris, widget=w)
         assert not w.Error.invalid_data.is_shown() and w.session is not None
 
-    def test_regression_and_missing_values(self):
+    def test_regression_and_missing_values(self) -> None:
         w = self.w
         w.dataset_index = 4
         w._on_data_changed()
@@ -133,7 +133,7 @@ class TestNeuralPlayground(WidgetTest):
         assert w.Information.dropped.is_shown() and w.session.head == "regression"
         w._step_once()
 
-    def test_divergence_pauses(self):
+    def test_divergence_pauses(self) -> None:
         w = self.w
         w.lr_index = 10
         w.activation_index = 0
@@ -144,7 +144,7 @@ class TestNeuralPlayground(WidgetTest):
         w._tick()
         assert not w.playing and w.Warning.diverged.is_shown()
 
-    def test_hover_text(self):
+    def test_hover_text(self) -> None:
         from AnyQt.QtCore import QPointF
 
         w = self.w
@@ -157,7 +157,7 @@ class TestNeuralPlayground(WidgetTest):
         assert "weight" in w.network_view.hover_text(mid)
         assert w.network_view.hover_text(QPointF(-50, -50)) is None
 
-    def test_settings_roundtrip(self):
+    def test_settings_roundtrip(self) -> None:
         w = self.w
         w.hidden_layers = [3]
         w.lr_index = 2

@@ -6,8 +6,11 @@ Orange wins over a checkout on ``sys.path``, so the checkout is appended to its 
 
 import os
 import sys
+import tempfile
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# The tests assert on English text, so keep the developer's own Orange language setting (read from the user config dir) out of them.
+os.environ["XDG_CONFIG_HOME"] = tempfile.mkdtemp(prefix="nv-test-config-")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)

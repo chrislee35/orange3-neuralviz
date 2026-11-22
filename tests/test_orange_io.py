@@ -1,26 +1,28 @@
+from typing import Any
+
 import numpy as np
 import pytest
-from Orange.data import ContinuousVariable, DiscreteVariable, Domain, StringVariable, Table
+from Orange.data import ContinuousVariable, DiscreteVariable, Domain, Table
 
-from orangecontrib.neuralviz.util.orange_io import data_with_subset, extract, generated_table, hidden_output, snapshot_model
+from orangecontrib.neuralviz.util.orange_io import Extracted, data_with_subset, extract, generated_table, hidden_output, snapshot_model
 from orangecontrib.neuralviz.util.session import Config, PlaygroundSession
 
 
-def _session(table, **cfg):
+def _session(table: Table, **cfg: Any) -> tuple[Extracted, PlaygroundSession]:
     info = extract(table)
     names = [a.name for a in info.attributes]
     classes = list(info.class_var.values) if info.task == "classification" else None
     return info, PlaygroundSession(info.raw, info.y, info.task, names, classes, Config(**cfg), 0.5)
 
 
-def test_generated_tables():
+def test_generated_tables() -> None:
     t = generated_table("xor", 50, 5, 1)
     assert t.X.shape == (50, 2) and t.domain.class_var.is_discrete
     r = generated_table("plane", 50, 5, 1)
     assert r.domain.class_var.is_continuous
 
 
-def test_extract_errors_and_cleaning():
+def test_extract_errors_and_cleaning() -> None:
     iris = Table("iris")
     info = extract(iris)
     assert info.task == "classification" and info.raw.shape == (150, 4) and info.dropped == 0
@@ -36,8 +38,10 @@ def test_extract_errors_and_cleaning():
     info = extract(t)
     assert info.dropped == 2 and len(info.raw) == 18 and 0 not in info.rows and 1 not in info.rows
 
-    only_text = Domain([ContinuousVariable("a"), ContinuousVariable("b"), DiscreteVariable("d", values=("p", "q"))],
-                       DiscreteVariable("c", values=("u", "v")))
+    only_text = Domain(
+        [ContinuousVariable("a"), ContinuousVariable("b"), DiscreteVariable("d", values=("p", "q"))],
+        DiscreteVariable("c", values=("u", "v")),
+    )
     tt = Table.from_numpy(only_text, np.array([[1, 2, 0]] * 6, float), np.array([0, 1] * 3, float))
     assert [a.name for a in extract(tt).attributes] == ["a", "b"]  # discrete features are ignored
 
@@ -46,7 +50,7 @@ def test_extract_errors_and_cleaning():
         extract(tiny)
 
 
-def test_model_snapshot_predicts_like_the_network():
+def test_model_snapshot_predicts_like_the_network() -> None:
     table = generated_table("xor", 120, 0, 2)
     info, s = _session(table, hidden=[6], learning_rate=0.1, features=["col:0", "col:1", "prod"])
     s.step(60)
@@ -65,7 +69,7 @@ def test_model_snapshot_predicts_like_the_network():
     assert np.all(np.isfinite(model(nan_table, model.Probs)))
 
 
-def test_model_regression_and_multiclass():
+def test_model_regression_and_multiclass() -> None:
     plane = generated_table("plane", 100, 0, 1)
     info, s = _session(plane, hidden=[3], learning_rate=0.05)
     s.step(80)
@@ -79,7 +83,7 @@ def test_model_regression_and_multiclass():
     assert m(iris, m.Probs).shape == (150, 3) and np.mean(m(iris) == iris.Y) > 0.8
 
 
-def test_output_tables():
+def test_output_tables() -> None:
     iris = Table("iris")
     info, s = _session(iris, hidden=[5, 3], features=["col:0", "col:1"])
     data = data_with_subset(s, info)

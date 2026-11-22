@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from typing import Sequence
+from collections.abc import Sequence
 
 import numpy as np
 from AnyQt.QtCore import QPointF, QRectF, Qt
@@ -11,6 +11,7 @@ from AnyQt.QtGui import QColor, QFont, QFontMetrics, QImage, QMouseEvent, QPaint
 from AnyQt.QtWidgets import QSizePolicy, QToolTip, QWidget
 
 from orangecontrib.neuralviz.util.colors import BLUE, ORANGE
+from orangecontrib.neuralviz.util.translate import _tr
 
 _TEXT = QColor(70, 70, 70)
 _FRAME = QColor(120, 120, 120)
@@ -64,7 +65,9 @@ class NetworkView(QWidget):
         self.biases = biases
         self.images = images
         self.output_labels = output_labels
-        self.headers = ["Features"] + [f"Hidden {i + 1}" for i in range(len(sizes) - 2)] + ["Output"]
+        self.headers = (
+            [_tr.m[50, "Features"]] + [_tr.m[51, "Hidden {}"].format(i + 1) for i in range(len(sizes) - 2)] + [_tr.m[52, "Output"]]
+        )
         self.update()
 
     # ----- geometry ---------------------------------------------------------------------------
@@ -89,7 +92,7 @@ class NetworkView(QWidget):
 
     # ----- painting ---------------------------------------------------------------------------
 
-    def paintEvent(self, _event: object) -> None:  # noqa: N802
+    def paintEvent(self, _event: object) -> None:
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
@@ -121,10 +124,16 @@ class NetworkView(QWidget):
                 p.drawRect(rect)
                 p.setPen(_TEXT)
                 if col == 0 and j < len(self.labels):
-                    p.drawText(QRectF(0, c.y() - 10, c.x() - half - 4, 20), Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, self.labels[j])
+                    p.drawText(
+                        QRectF(0, c.y() - 10, c.x() - half - 4, 20),
+                        Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter,
+                        self.labels[j],
+                    )
                 elif col == len(self._centres) - 1 and j < len(self.output_labels) and len(centres) > 1:
                     label = QFontMetrics(font).elidedText(self.output_labels[j], Qt.TextElideMode.ElideRight, 100)
-                    p.drawText(QRectF(c.x() + half + 4, c.y() - 10, 104, 20), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, label)
+                    p.drawText(
+                        QRectF(c.x() + half + 4, c.y() - 10, 104, 20), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, label
+                    )
         p.end()
 
     # ----- hover ------------------------------------------------------------------------------
@@ -139,7 +148,7 @@ class NetworkView(QWidget):
                 continue
             for j, c in enumerate(centres):
                 if abs(pos.x() - c.x()) <= half and abs(pos.y() - c.y()) <= half:
-                    return f"{self.headers[col]}, neuron {j + 1}: bias {self.biases[col - 1][j]:+.3f}"
+                    return _tr.m[53, "{}, neuron {}: bias {}"].format(self.headers[col], j + 1, f"{self.biases[col - 1][j]:+.3f}")
         best, best_d = None, 5.0
         for layer, w in enumerate(self.weights):
             for i in range(w.shape[0]):
@@ -152,9 +161,9 @@ class NetworkView(QWidget):
             return None
         layer, i, j = best
         src = self.labels[i] if layer == 0 and i < len(self.labels) else f"{self.headers[layer]} #{i + 1}"
-        return f"weight {src} → {self.headers[layer + 1]} #{j + 1}: {self.weights[layer][i, j]:+.3f}"
+        return _tr.m[54, "weight {} → {} #{}: {}"].format(src, self.headers[layer + 1], j + 1, f"{self.weights[layer][i, j]:+.3f}")
 
-    def mouseMoveEvent(self, event: QMouseEvent) -> None:  # noqa: N802
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
         # Qt5 and Qt6 name these differently.
         local = event.localPos() if hasattr(event, "localPos") else event.position()
         global_pos = event.globalPos() if hasattr(event, "globalPos") else event.globalPosition().toPoint()
@@ -211,7 +220,7 @@ class OutputView(QWidget):
         side = max(10.0, min(self.width() - margin_left - margin, self.height() - margin_bottom - margin))
         return QRectF(margin_left, margin, side, side)
 
-    def paintEvent(self, _event: object) -> None:  # noqa: N802
+    def paintEvent(self, _event: object) -> None:
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
@@ -225,8 +234,7 @@ class OutputView(QWidget):
 
         def to_px(xy: np.ndarray) -> list[QPointF]:
             return [
-                QPointF(box.left() + (x - x0) / (x1 - x0) * box.width(), box.bottom() - (y - y0) / (y1 - y0) * box.height())
-                for x, y in xy
+                QPointF(box.left() + (x - x0) / (x1 - x0) * box.width(), box.bottom() - (y - y0) / (y1 - y0) * box.height()) for x, y in xy
             ]
 
         radius = 3.2
@@ -244,11 +252,17 @@ class OutputView(QWidget):
         font = QFont(self.font())
         font.setPointSizeF(8.0)
         p.setFont(font)
-        p.drawText(QRectF(box.left(), box.bottom() + 2, box.width(), 16), Qt.AlignmentFlag.AlignCenter, f"{self.axis_names[0]}  ({x0:.1f} … {x1:.1f})")
+        p.drawText(
+            QRectF(box.left(), box.bottom() + 2, box.width(), 16),
+            Qt.AlignmentFlag.AlignCenter,
+            f"{self.axis_names[0]}  ({x0:.1f} … {x1:.1f})",
+        )
         p.save()
         p.translate(12, box.bottom() - box.height() / 2)
         p.rotate(-90)
-        p.drawText(QRectF(-box.height() / 2, -10, box.height(), 16), Qt.AlignmentFlag.AlignCenter, f"{self.axis_names[1]}  ({y0:.1f} … {y1:.1f})")
+        p.drawText(
+            QRectF(-box.height() / 2, -10, box.height(), 16), Qt.AlignmentFlag.AlignCenter, f"{self.axis_names[1]}  ({y0:.1f} … {y1:.1f})"
+        )
         p.restore()
         p.end()
 
@@ -266,7 +280,7 @@ class LossView(QWidget):
         self.history = history
         self.update()
 
-    def paintEvent(self, _event: object) -> None:  # noqa: N802
+    def paintEvent(self, _event: object) -> None:
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         box = QRectF(40, 6, max(self.width() - 50, 10), max(self.height() - 24, 10))
@@ -299,5 +313,9 @@ class LossView(QWidget):
             p.setFont(font)
             p.drawText(QRectF(0, box.top() - 2, 38, 14), Qt.AlignmentFlag.AlignRight, f"{top:.2g}")
             p.drawText(QRectF(0, box.bottom() - 12, 38, 14), Qt.AlignmentFlag.AlignRight, "0")
-            p.drawText(QRectF(box.left(), box.bottom() + 2, box.width(), 14), Qt.AlignmentFlag.AlignCenter, f"epoch {int(epochs[0])} … {int(epochs[-1])}")
+            p.drawText(
+                QRectF(box.left(), box.bottom() + 2, box.width(), 14),
+                Qt.AlignmentFlag.AlignCenter,
+                _tr.m[55, "epoch {} … {}"].format(int(epochs[0]), int(epochs[-1])),
+            )
         p.end()

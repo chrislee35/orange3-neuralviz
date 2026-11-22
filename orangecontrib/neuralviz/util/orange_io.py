@@ -15,6 +15,7 @@ from orangecontrib.neuralviz.util.datasets import make_dataset, task_of
 from orangecontrib.neuralviz.util.features import FeatureMap
 from orangecontrib.neuralviz.util.network import NeuralNetwork
 from orangecontrib.neuralviz.util.session import PlaygroundSession
+from orangecontrib.neuralviz.util.translate import _tr
 
 SUBSET_NAME = "Subset"
 MIN_ROWS = 4
@@ -37,20 +38,20 @@ def extract(data: Table) -> Extracted:
     """Pull base columns, target and task out of ``data``. Raises ``ValueError`` with a user-facing message."""
     class_var = data.domain.class_var
     if class_var is None:
-        raise ValueError("The data needs a class (target) variable.")
+        raise ValueError(_tr.m[56, "The data needs a class (target) variable."])
     if len(data.domain.class_vars) > 1:
-        raise ValueError("Data with several class variables is not supported.")
+        raise ValueError(_tr.m[57, "Data with several class variables is not supported."])
     attributes = [a for a in data.domain.attributes if a.is_continuous]
     if len(attributes) < 2:
-        raise ValueError("The data needs at least two numeric features.")
+        raise ValueError(_tr.m[58, "The data needs at least two numeric features."])
     if class_var.is_discrete and len(class_var.values) < 2:
-        raise ValueError("The class variable needs at least two values.")
+        raise ValueError(_tr.m[59, "The class variable needs at least two values."])
     if not (class_var.is_discrete or class_var.is_continuous):
-        raise ValueError("The class variable must be categorical or numeric.")
+        raise ValueError(_tr.m[60, "The class variable must be categorical or numeric."])
     sub = data.transform(Domain(attributes, class_var))
     ok = ~(np.isnan(sub.X).any(axis=1) | np.isnan(sub.Y))
     if ok.sum() < MIN_ROWS:
-        raise ValueError(f"At least {MIN_ROWS} rows without missing values are needed.")
+        raise ValueError(_tr.m[61, "At least {} rows without missing values are needed."].format(MIN_ROWS))
     rows = np.flatnonzero(ok)
     y = sub.Y[ok]
     task = "classification" if class_var.is_discrete else "regression"

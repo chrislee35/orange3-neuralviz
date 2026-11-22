@@ -74,7 +74,7 @@ class FeatureMap:
                 cols.append(np.sin(raw[:, 1]))
         return np.column_stack(cols) if cols else np.zeros((len(raw), 0))
 
-    def fit(self, raw: np.ndarray) -> "FeatureMap":
+    def fit(self, raw: np.ndarray) -> FeatureMap:
         f = self._raw(raw)
         if len(f) == 0 or f.shape[1] == 0:
             return self

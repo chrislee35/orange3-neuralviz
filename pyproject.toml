@@ -45,6 +45,7 @@ exclude = ["typings*", "doc*", "build*", "dist*", "tests*"]
 
 [tool.setuptools.package-data]
 "orangecontrib.neuralviz.widgets" = ["icons/*.svg"]
+"orangecontrib.neuralviz" = ["i18n/*.json"]
 
 [project.entry-points."orange.widgets"]
 neuralviz = "orangecontrib.neuralviz.widgets"
@@ -72,6 +73,8 @@ extend-exclude = ["typings"]
 
 [tool.ruff.lint]
 extend-select = ["ANN"]
+# flake8 enforces E402 where tests/conftest.py needs a late import; keep ruff from calling its noqa unused.
+external = ["E402"]
 # Any is used deliberately for untyped third-party objects.
 ignore = ["ANN401"]
 

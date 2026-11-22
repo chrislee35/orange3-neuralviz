@@ -9,17 +9,19 @@ from __future__ import annotations
 
 import numpy as np
 
+from orangecontrib.neuralviz.util.translate import _tr
+
 RADIUS = 6.0
 
 CLASSIFICATION = {
-    "circle": "Circle",
-    "xor": "XOR",
-    "gauss": "Two Gaussians",
-    "spiral": "Spiral",
+    "circle": _tr.m[44, "Circle"],
+    "xor": _tr.m[45, "XOR"],
+    "gauss": _tr.m[46, "Two Gaussians"],
+    "spiral": _tr.m[47, "Spiral"],
 }
 REGRESSION = {
-    "plane": "Plane",
-    "multi_gauss": "Multiple Gaussians",
+    "plane": _tr.m[48, "Plane"],
+    "multi_gauss": _tr.m[49, "Multiple Gaussians"],
 }
 DATASETS = {**CLASSIFICATION, **REGRESSION}
 

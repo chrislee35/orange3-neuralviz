@@ -88,9 +88,7 @@ class PlaygroundSession:
         self.features = FeatureMap(self.base_names, cfg.features).fit(self.raw[self.train_idx])
         if not self.features.selected:
             raise ValueError("Select at least one input feature")
-        self.network = NeuralNetwork(
-            len(self.features.selected), cfg.hidden, self.n_outputs, cfg.activation, self.head, cfg.seed
-        )
+        self.network = NeuralNetwork(len(self.features.selected), cfg.hidden, self.n_outputs, cfg.activation, self.head, cfg.seed)
         self.rng = np.random.default_rng(cfg.seed)
         self.epoch = 0
         self.history = []

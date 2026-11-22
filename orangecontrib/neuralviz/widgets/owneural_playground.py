@@ -22,12 +22,13 @@ from orangecontrib.neuralviz.util.orange_io import (
     snapshot_model,
 )
 from orangecontrib.neuralviz.util.session import Config, PlaygroundSession
+from orangecontrib.neuralviz.util.translate import _tr
 from orangecontrib.neuralviz.util.typed_settings import setting
 from orangecontrib.neuralviz.util.views import LossView, NetworkView, OutputView, to_qimage
 
 DATASET_KEYS = list(DATASETS)
 ACTIVATION_KEYS = ["relu", "tanh", "sigmoid", "linear"]
-ACTIVATION_NAMES = ["ReLU", "Tanh", "Sigmoid", "Linear"]
+ACTIVATION_NAMES = ["ReLU", "Tanh", "Sigmoid", _tr.m[39, "Linear"]]
 LEARNING_RATES = [0.00001, 0.0001, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0]
 REGULARIZATION_KEYS = ["none", "l1", "l2"]
 REGULARIZATION_RATES = [0.0, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0]
@@ -39,8 +40,8 @@ TICK_BUDGET = 0.025  # seconds of training per tick, so the window stays respons
 
 
 class OWNeuralPlayground(widget.OWWidget):
-    name = "Neural Playground"
-    description = "Build a small neural network, train it step by step and watch what it learns."
+    name = _tr.m[2, "Neural Playground"]
+    description = _tr.m[3, "Build a small neural network, train it step by step and watch what it learns."]
     icon = "icons/nv-playground.svg"
     priority = 10
     keywords = ["neural network", "playground", "perceptron", "mlp", "deep learning", "tensorflow", "train"]
@@ -57,13 +58,13 @@ class OWNeuralPlayground(widget.OWWidget):
 
     class Error(widget.OWWidget.Error):
         invalid_data = Msg("{}")
-        no_features = Msg("Select at least one input feature.")
+        no_features = Msg(_tr.m[4, "Select at least one input feature."])
 
     class Warning(widget.OWWidget.Warning):
-        diverged = Msg("Training diverged (the loss is no longer finite). Lower the learning rate and press Reset.")
+        diverged = Msg(_tr.m[5, "Training diverged (the loss is no longer finite). Lower the learning rate and press Reset."])
 
     class Information(widget.OWWidget.Information):
-        dropped = Msg("{} rows with missing values were ignored.")
+        dropped = Msg(_tr.m[6, "{} rows with missing values were ignored."])
 
     # data
     dataset_index: int = setting(0)
@@ -112,72 +113,123 @@ class OWNeuralPlayground(widget.OWWidget):
 
     def _build_controls(self) -> None:
         row_box = gui.hBox(self.controlArea)
-        gui.button(row_box, self, "Reset", callback=self._reset)
-        self.play_button = gui.button(row_box, self, "Play", callback=self._toggle_play)
-        gui.button(row_box, self, "Step", callback=self._step_once)
+        gui.button(row_box, self, _tr.m[7, "Reset"], callback=self._reset)
+        self.play_button = gui.button(row_box, self, _tr.m[8, "Play"], callback=self._toggle_play)
+        gui.button(row_box, self, _tr.m[9, "Step"], callback=self._step_once)
 
-        box = gui.vBox(self.controlArea, "Data")
+        box = gui.vBox(self.controlArea, _tr.m[10, "Data"])
         self.data_info = gui.widgetLabel(box, "")
         self.generator_box = gui.vBox(box)
         gui.comboBox(
-            self.generator_box, self, "dataset_index", items=list(DATASETS.values()), orientation=Qt.Orientation.Horizontal,
+            self.generator_box,
+            self,
+            "dataset_index",
+            items=list(DATASETS.values()),
+            orientation=Qt.Orientation.Horizontal,
             callback=self._on_data_changed,
         )
-        gui.spin(self.generator_box, self, "n_samples", 50, 1000, step=50, label="Samples:", callback=self._on_data_changed)
+        gui.spin(self.generator_box, self, "n_samples", 50, 1000, step=50, label=_tr.m[26, "Samples:"], callback=self._on_data_changed)
         gui.hSlider(
-            self.generator_box, self, "noise", label="Noise:", minValue=0, maxValue=50, step=1, intOnly=True, labelFormat=" %d%%",
+            self.generator_box,
+            self,
+            "noise",
+            label=_tr.m[27, "Noise:"],
+            minValue=0,
+            maxValue=50,
+            step=1,
+            intOnly=True,
+            labelFormat=" %d%%",
             callback=self._on_data_changed,
         )
-        gui.button(self.generator_box, self, "New random data", callback=self._regenerate)
+        gui.button(self.generator_box, self, _tr.m[28, "New random data"], callback=self._regenerate)
         gui.hSlider(
-            box, self, "train_percent", label="Train:", minValue=10, maxValue=90, step=5, intOnly=True, labelFormat=" %d%%",
+            box,
+            self,
+            "train_percent",
+            label=_tr.m[29, "Train:"],
+            minValue=10,
+            maxValue=90,
+            step=5,
+            intOnly=True,
+            labelFormat=" %d%%",
             callback=self._on_structure_changed,
         )
 
-        box = gui.vBox(self.controlArea, "Input features")
+        box = gui.vBox(self.controlArea, _tr.m[11, "Input features"])
         self.feature_list = QListWidget()
         self.feature_list.setMaximumHeight(120)
         self.feature_list.itemChanged.connect(self._on_feature_toggled)
         box.layout().addWidget(self.feature_list)
 
-        box = gui.vBox(self.controlArea, "Network")
-        gui.spin(box, self, "n_hidden", 0, MAX_HIDDEN_LAYERS, label="Hidden layers:", callback=self._on_layer_count)
+        box = gui.vBox(self.controlArea, _tr.m[12, "Network"])
+        gui.spin(box, self, "n_hidden", 0, MAX_HIDDEN_LAYERS, label=_tr.m[13, "Hidden layers:"], callback=self._on_layer_count)
         row = QWidget()
         self.neuron_layout = QHBoxLayout(row)
         self.neuron_layout.setContentsMargins(0, 0, 0, 0)
         box.layout().addWidget(row)
         self._populate_neurons()
         gui.comboBox(
-            box, self, "activation_index", label="Activation:", items=ACTIVATION_NAMES, orientation=Qt.Orientation.Horizontal,
+            box,
+            self,
+            "activation_index",
+            label=_tr.m[14, "Activation:"],
+            items=ACTIVATION_NAMES,
+            orientation=Qt.Orientation.Horizontal,
             callback=self._on_structure_changed,
         )
 
-        box = gui.vBox(self.controlArea, "Training")
+        box = gui.vBox(self.controlArea, _tr.m[15, "Training"])
         gui.comboBox(
-            box, self, "lr_index", label="Learning rate:", items=[f"{v:g}" for v in LEARNING_RATES],
-            orientation=Qt.Orientation.Horizontal, callback=self._on_live_changed,
-        )
-        gui.comboBox(
-            box, self, "reg_index", label="Regularization:", items=["None", "L1", "L2"], orientation=Qt.Orientation.Horizontal,
+            box,
+            self,
+            "lr_index",
+            label=_tr.m[16, "Learning rate:"],
+            items=[f"{v:g}" for v in LEARNING_RATES],
+            orientation=Qt.Orientation.Horizontal,
             callback=self._on_live_changed,
         )
         gui.comboBox(
-            box, self, "reg_rate_index", label="Reg. rate:", items=[f"{v:g}" for v in REGULARIZATION_RATES],
-            orientation=Qt.Orientation.Horizontal, callback=self._on_live_changed,
+            box,
+            self,
+            "reg_index",
+            label=_tr.m[17, "Regularization:"],
+            items=[_tr.m[18, "None"], "L1", "L2"],
+            orientation=Qt.Orientation.Horizontal,
+            callback=self._on_live_changed,
         )
-        gui.spin(box, self, "batch_size", 1, 512, label="Batch size:", callback=self._on_live_changed)
-        gui.spin(box, self, "epochs_per_update", 1, 50, label="Epochs per update:")
+        gui.comboBox(
+            box,
+            self,
+            "reg_rate_index",
+            label=_tr.m[19, "Reg. rate:"],
+            items=[f"{v:g}" for v in REGULARIZATION_RATES],
+            orientation=Qt.Orientation.Horizontal,
+            callback=self._on_live_changed,
+        )
+        gui.spin(box, self, "batch_size", 1, 512, label=_tr.m[20, "Batch size:"], callback=self._on_live_changed)
+        gui.spin(box, self, "epochs_per_update", 1, 50, label=_tr.m[21, "Epochs per update:"])
 
-        box = gui.vBox(self.controlArea, "Display")
+        box = gui.vBox(self.controlArea, _tr.m[22, "Display"])
         self.axes_box = gui.vBox(box)
         self.axis_x_combo = gui.comboBox(
-            self.axes_box, self, "axis_x", label="Horizontal axis:", items=[], orientation=Qt.Orientation.Horizontal, callback=self._on_axes_changed
+            self.axes_box,
+            self,
+            "axis_x",
+            label=_tr.m[23, "Horizontal axis:"],
+            items=[],
+            orientation=Qt.Orientation.Horizontal,
+            callback=self._on_axes_changed,
         )
         self.axis_y_combo = gui.comboBox(
-            self.axes_box, self, "axis_y", label="Vertical axis:", items=[], orientation=Qt.Orientation.Horizontal, callback=self._on_axes_changed
+            self.axes_box,
+            self,
+            "axis_y",
+            label=_tr.m[24, "Vertical axis:"],
+            items=[],
+            orientation=Qt.Orientation.Horizontal,
+            callback=self._on_axes_changed,
         )
-        gui.checkBox(box, self, "show_test", "Show test data", callback=self._refresh)
-
+        gui.checkBox(box, self, "show_test", _tr.m[25, "Show test data"], callback=self._refresh)
 
     def _build_main_area(self) -> None:
         holder = gui.hBox(self.mainArea)
@@ -221,7 +273,7 @@ class OWNeuralPlayground(widget.OWWidget):
             spin = QSpinBox()
             spin.setRange(1, MAX_NEURONS)
             spin.setValue(n)
-            spin.setToolTip(f"Neurons in hidden layer {i + 1}")
+            spin.setToolTip(_tr.m[31, "Neurons in hidden layer {}"].format(i + 1))
             spin.valueChanged.connect(partial(self._on_neurons, i))
             self.neuron_layout.addWidget(spin)
         self.neuron_layout.addStretch(1)
@@ -248,7 +300,7 @@ class OWNeuralPlayground(widget.OWWidget):
     def set_data(self, data: Table | None) -> None:
         self.input_data = data
 
-    def handleNewSignals(self) -> None:  # noqa: N802
+    def handleNewSignals(self) -> None:
         self._pause()
         self._load()
 
@@ -284,10 +336,13 @@ class OWNeuralPlayground(widget.OWWidget):
             else:
                 self.feature_keys = [column_key(0), column_key(1)]
         if self.input_data is not None:
-            kind = "classes" if self.extracted.task == "classification" else "regression"
             n_classes = len(self.extracted.class_var.values) if self.extracted.task == "classification" else 0  # type: ignore[union-attr]
-            detail = f"{n_classes} {kind}" if n_classes else "numeric target"
-            self.data_info.setText(f"{len(self.extracted.raw)} rows, {len(names)} numeric features, {detail}")
+            n_rows, n_features = len(self.extracted.raw), len(names)
+            if n_classes:
+                text = _tr.m[32, "{} rows, {} numeric features, {} classes"].format(n_rows, n_features, n_classes)
+            else:
+                text = _tr.m[33, "{} rows, {} numeric features, numeric target"].format(n_rows, n_features)
+            self.data_info.setText(text)
         else:
             self.data_info.setText("")
         self.data_info.setVisible(self.input_data is not None)
@@ -395,13 +450,13 @@ class OWNeuralPlayground(widget.OWWidget):
         elif self.session is not None:
             self.Warning.diverged.clear()
             self.playing = True
-            self.play_button.setText("Pause")
+            self.play_button.setText(_tr.m[30, "Pause"])
             self.timer.start()
 
     def _pause(self) -> None:
         self.playing = False
         self.timer.stop()
-        self.play_button.setText("Play")
+        self.play_button.setText(_tr.m[8, "Play"])
 
     def _step_once(self) -> None:
         if self.session is None:
@@ -431,8 +486,14 @@ class OWNeuralPlayground(widget.OWWidget):
         self.network_view.set_state([], [], [], [], [], [])
         self.output_view.image = None
         self.output_view.set_state(
-            self.output_view.image, (0.0, 1.0, 0.0, 1.0), np.zeros((0, 2)), np.zeros((0, 3)), np.zeros((0, 2)), np.zeros((0, 3)),
-            self.show_test, ("", ""),
+            self.output_view.image,
+            (0.0, 1.0, 0.0, 1.0),
+            np.zeros((0, 2)),
+            np.zeros((0, 3)),
+            np.zeros((0, 2)),
+            np.zeros((0, 3)),
+            self.show_test,
+            ("", ""),
         )
         self.loss_view.set_history([])
         self.stats.setText("")
@@ -474,9 +535,13 @@ class OWNeuralPlayground(widget.OWWidget):
 
     @staticmethod
     def _stats_text(s: PlaygroundSession) -> str:
-        parts = [f"<b>Epoch {s.epoch:,}</b>", f"train loss {s.train_loss:.3f}", f"test loss {s.test_loss:.3f}"]
+        parts = [
+            "<b>" + _tr.m[34, "Epoch {}"].format(f"{s.epoch:,}") + "</b>",
+            _tr.m[35, "train loss"] + f" {s.train_loss:.3f}",
+            _tr.m[36, "test loss"] + f" {s.test_loss:.3f}",
+        ]
         if s.task == "classification":
-            parts += [f"train accuracy {s.train_accuracy:.0%}", f"test accuracy {s.test_accuracy:.0%}"]
+            parts += [_tr.m[37, "train accuracy"] + f" {s.train_accuracy:.0%}", _tr.m[38, "test accuracy"] + f" {s.test_accuracy:.0%}"]
         return " &nbsp;|&nbsp; ".join(parts)
 
     # ----- outputs ----------------------------------------------------------------------------
@@ -492,7 +557,7 @@ class OWNeuralPlayground(widget.OWWidget):
         self.Outputs.data.send(data_with_subset(s, info))
         self.Outputs.hidden.send(hidden_output(s, info))
 
-    def onDeleteWidget(self) -> None:  # noqa: N802
+    def onDeleteWidget(self) -> None:
         self.timer.stop()
         super().onDeleteWidget()
 
@@ -500,4 +565,4 @@ class OWNeuralPlayground(widget.OWWidget):
 if __name__ == "__main__":  # pragma: no cover
     from Orange.widgets.utils.widgetpreview import WidgetPreview
 
-    WidgetPreview(OWNeuralPlayground).run()
+    WidgetPreview(OWNeuralPlayground).run(Table("iris"))

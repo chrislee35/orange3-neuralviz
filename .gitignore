@@ -51,3 +51,5 @@ coverage.xml
 # Sphinx documentation
 .spyproject/
 
+# vscode
+.vscode/
