@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Neural Playground</title>
+  <rect width="256" height="256" rx="28" fill="#fff6ec"/>
+  <g stroke-linecap="round" fill="none">
+    <g stroke="#2f7fc1" opacity=".85">
+      <path d="M60 70 L128 60" stroke-width="7"/><path d="M60 70 L128 128" stroke-width="3"/>
+      <path d="M60 128 L128 128" stroke-width="9"/><path d="M60 186 L128 196" stroke-width="5"/>
+      <path d="M128 60 L196 128" stroke-width="8"/><path d="M128 128 L196 128" stroke-width="4"/>
+    </g>
+    <g stroke="#f5883a" opacity=".9">
+      <path d="M60 70 L128 196" stroke-width="3"/><path d="M60 128 L128 60" stroke-width="5"/>
+      <path d="M60 186 L128 128" stroke-width="7"/><path d="M128 196 L196 128" stroke-width="9"/>
+    </g>
+  </g>
+  <g stroke="#555" stroke-width="3">
+    <rect x="42" y="52" width="36" height="36" fill="#f5883a"/>
+    <rect x="42" y="110" width="36" height="36" fill="#9cc3e4"/>
+    <rect x="42" y="168" width="36" height="36" fill="#fbd5b4"/>
+    <rect x="110" y="42" width="36" height="36" fill="#2f7fc1"/>
+    <rect x="110" y="110" width="36" height="36" fill="#fbd5b4"/>
+    <rect x="110" y="178" width="36" height="36" fill="#f5883a"/>
+    <rect x="178" y="106" width="44" height="44" fill="#5b9bd0"/>
+  </g>
+</svg>

@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orange3-neuralviz"
+version = "0.0.1"
+description = "Orange3 widgets for building, training and watching small neural networks, in the spirit of the TensorFlow Playground"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = { text = "CC-BY-NC-SA-4.0" }
+authors = [
+    { name = "Chris Lee", email = "github@chrislee.dhs.org" },
+]
+keywords = ["orange3 add-on", "neural network", "visualization", "education"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only"
+]
+dependencies = [
+    "Orange3 >= 3.41.0",
+    "orange-canvas-core >= 0.1.28",
+    "orange-widget-base >= 4.20.0",
+    "numpy >= 2.0",
+]
+
+[license]
+license = "CC-BY-NC-SA-4.0"
+license-files = ["LICENSE"]
+
+[project.optional-dependencies]
+test = ["pytest", "coverage"]
+doc = ["sphinx", "myst-parser", "sphinx_rtd_theme"]
+
+[project.urls]
+Homepage = "https://github.com/chrislee35/orange3-neuralviz"
+Documentation = "https://chrislee35.github.io/orange3-neuralviz/"
+
+[tool.setuptools.packages.find]
+where = ["."]
+namespaces = true
+exclude = ["typings*", "doc*", "build*", "dist*", "tests*"]
+
+[tool.setuptools.package-data]
+"orangecontrib.neuralviz.widgets" = ["icons/*.svg"]
+
+[project.entry-points."orange.widgets"]
+neuralviz = "orangecontrib.neuralviz.widgets"
+
+[project.entry-points."orange3.addon"]
+orange3-neuralviz = "orangecontrib.neuralviz"
+
+[project.entry-points."orange.canvas.help"]
+html-index = "orangecontrib.neuralviz.widgets:WIDGET_HELP_PATH"
+
+[tool.black]
+line-length = 140
+target-version = ["py311"]
+
+[tool.pyright]
+include = ["orangecontrib", "tests"]
+pythonVersion = "3.11"
+# Orange's widget framework declares Inputs/Outputs/Setting as class attributes
+# that intentionally override its base-class annotations.
+reportIncompatibleVariableOverride = false
+
+[tool.ruff]
+line-length = 140
+extend-exclude = ["typings"]
+
+[tool.ruff.lint]
+extend-select = ["ANN"]
+# Any is used deliberately for untyped third-party objects.
+ignore = ["ANN401"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

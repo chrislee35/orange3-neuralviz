@@ -1,0 +1,21 @@
+[
+ [
+  "Neural Networks",
+  [
+   {
+    "text": "Neural Playground",
+    "doc": "widgets/neural-playground.md",
+    "icon": "../orangecontrib/neuralviz/widgets/icons/nv-playground.svg",
+    "background": "#ffcc99",
+    "keywords": ["neural network", "playground", "perceptron", "mlp", "tensorflow", "train"]
+   },
+   {
+    "text": "Playground Data",
+    "doc": "widgets/playground-data.md",
+    "icon": "../orangecontrib/neuralviz/widgets/icons/nv-data.svg",
+    "background": "#ffcc99",
+    "keywords": ["circle", "xor", "spiral", "gaussian", "synthetic", "toy"]
+   }
+  ]
+ ]
+]
