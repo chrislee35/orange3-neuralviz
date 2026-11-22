@@ -7,6 +7,8 @@ what every neuron learns while the loss falls.
 Unlike the browser original, it works on **your own data**: connect any table with numeric features and a class (or numeric target) and
 get a trained model back for Orange's *Predictions*, *Test and Score* and other widgets.
 
+![Neural Playground learning the XOR data set](https://raw.githubusercontent.com/chrislee35/orange3-neuralviz/main/doc/images/xor-en.png)
+
 ## Widgets
 
 | Widget | What it does |

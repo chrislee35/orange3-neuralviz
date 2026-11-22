@@ -2,6 +2,8 @@
 
 Build a small neural network, train it step by step and watch what it learns.
 
+![Neural Playground learning the Circle data set with five hidden layers](../images/circle-en.png)
+
 **Inputs**
 
 - Data (optional): a table with at least two numeric features and a class (categorical) or numeric target. Without an input the widget generates the built-in data sets, so it works on its own.
@@ -16,9 +18,19 @@ Outputs are sent when the network is reset, stepped or paused, not on every upda
 
 ## Reading the window
 
+![Neural Playground on the iris data: three output classes, four input features](../images/iris-en.png)
+
+The screenshot above shows the widget with the `iris` data connected: four input features, two hidden layers, and one output tile per class.
+
 - **Network diagram** (centre). One column per layer. Each tile is a heat map of one neuron's output over the plane of the two chosen axes: blue is positive, orange negative, white about zero. The first column shows the input features, the last the output. **Edges** are the weights: blue positive, orange negative, thicker means larger. Hover an edge for the weight, or a tile for its bias.
 - **Output** (right). The network's decision over the plane with the data on top. Points with a white outline are training data, points with a dark outline are test data. For classification, colour is the predicted class (a mix where the network is unsure); for regression, blue is a high value and orange a low one.
 - **Loss curve**. Training loss (dark) and test loss (orange) per epoch. A test loss that rises while the training loss keeps falling is overfitting.
+
+## Using your own data
+
+Connect any table with at least two numeric features and a class or numeric target, for example from the *File* widget. The data generator is replaced by a summary of the table, and every numeric column becomes an input feature.
+
+![A File widget connected to Neural Playground in the Orange canvas (shown with the Slovenian interface)](../images/workflow-iris-sl.png)
 
 ## Controls
 
@@ -67,6 +79,14 @@ The loss shown is the data loss only, without the regularization term. Rows with
 
 1. **Circle** with only x1 and x2 and no hidden layers: it cannot do it. Tick x1² and x2² and it can.
 2. **XOR** with a hidden layer of two or more neurons, or just the x1·x2 feature.
+
+   ![Five hidden layers solving the XOR data set](../images/xor-en.png)
 3. **Spiral** with 8-8 neurons and all the features, then add noise and watch the test loss climb as the network overfits. Turn on L2 regularization to calm it.
 4. Raise the **learning rate** to 3 or 10 and watch it fail.
 5. Connect a real table, such as `iris`, and compare the *Model* with a decision tree in *Test and Score*.
+
+## Languages
+
+The widget follows Orange's interface language setting: English, Slovenian, Spanish and Japanese are included. Restart Orange after changing it.
+
+![Neural Playground in Japanese](../images/circle-jp.png)
